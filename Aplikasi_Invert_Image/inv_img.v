@@ -43,6 +43,8 @@ module inv_img
     assign addrb = addrb_reg;
     assign dinb = 255 - douta; // Inversion implementaion
     assign web = (addra_reg >= 4) && (addra_reg <= 3136);
+	
+	assign done = (start_reg == 0);
     
     // Start pulse generator
     always @(posedge clk)
