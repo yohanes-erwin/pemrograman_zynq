@@ -9,8 +9,8 @@ module prl2srl(clock,rst,en,prl,srl,valid);
    output  valid;
    
    parameter IDLE    = 2'b00;
-   parameter SERIAL  = 2'b01;
-   parameter PARALEL = 2'b10;
+   parameter PARALEL = 2'b01;
+   parameter SERIAL  = 2'b10;
    
    reg  [1:0] state;
    reg  [2:0] count;
@@ -26,9 +26,9 @@ module prl2srl(clock,rst,en,prl,srl,valid);
             state <= nextState;
    end
    
-   assign nextState = (state == IDLE) & en                      ? SERIAL:
-                      (state == SERIAL) & en                    ? PARALEL:
-                      (state == PARALEL) & en & (count == 3'd7) ? SERIAL: 
+   assign nextState = (state == IDLE) & en                      ? PARALEL:
+                      (state == PARALEL) & en                   ? SERIAL:
+                      (state == SERIAL) & en & (count == 3'd7)  ? PARALEL: 
                                                                   state;
    
    //counter                                                                                                                              
@@ -36,7 +36,7 @@ module prl2srl(clock,rst,en,prl,srl,valid);
    begin
         if(!rst)
             count <= 3'd0;
-        else if(state == PARALEL)
+        else if(state == SERIAL)
             count <= count + 3'd1;
         else
             count <= count;
@@ -45,13 +45,13 @@ module prl2srl(clock,rst,en,prl,srl,valid);
    begin
         if(!rst)
             buff <= 8'd0;
-        else if(state == SERIAL)
-            buff <= prl;
         else if(state == PARALEL)
+            buff <= prl;
+        else if(state == SERIAL)
             buff <= {buff[6:0],1'b0};
         else
             buff <= buff;
    end
    assign srl   = buff[7];
-   assign valid = (state == PARALEL); 
+   assign valid = (state == SERIAL); 
 endmodule
